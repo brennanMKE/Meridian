@@ -1,0 +1,17 @@
+{
+  "mcpServers": {
+    "butterbase": {
+      "type": "stdio",
+      "command": "sh",
+      "args": [
+        "-c",
+        "set -a; . ./.env; exec npx -y @butterbase/mcp"
+      ],
+      "env": {
+        "BUTTERBASE_REGIONS": "us-east-1,us-west-2,eu-central-1",
+        "BUTTERBASE_REGION": "us-west-2",
+        "CONTROL_API_URL": "https://api.butterbase.ai"
+      }
+    }
+  }
+}
