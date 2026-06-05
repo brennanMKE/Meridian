@@ -4,7 +4,8 @@
   "type": "module",
   "scripts": {
     "start": "node --env-file=.env index.ts",
-    "board": "node --env-file=.env src/board.ts"
+    "board": "node --env-file=.env src/board.ts",
+    "provision": "node --env-file=.env scripts/provision.mjs"
   },
   "dependencies": {
     "@xtraceai/memory": "^0.2.1",

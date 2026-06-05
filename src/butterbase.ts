@@ -3,7 +3,7 @@
 import { spawn, type ChildProcess } from "node:child_process";
 import { createInterface } from "node:readline";
 
-export const APP_ID = "app_0hd3xjnzr9cv";
+export const APP_ID = process.env.BUTTERBASE_APP_ID ?? "app_0hd3xjnzr9cv";
 
 let child: ChildProcess | null = null;
 const pending = new Map<number, (msg: any) => void>();
