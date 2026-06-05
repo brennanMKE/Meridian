@@ -3,7 +3,8 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "start": "node --env-file=.env index.ts"
+    "start": "node --env-file=.env index.ts",
+    "board": "node --env-file=.env src/board.ts"
   },
   "dependencies": {
     "@xtraceai/memory": "^0.2.1",
