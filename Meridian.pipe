@@ -3,18 +3,91 @@
     {
       "id": "chat_1",
       "provider": "chat",
-      "name": "Chat",
       "config": {
         "hideForm": true,
         "mode": "Source",
         "parameters": {},
-        "type": "chat",
-        "name": "Chat"
+        "type": "chat"
       },
       "ui": {
         "position": {
-          "x": 700,
-          "y": 500
+          "x": 20,
+          "y": 200
+        },
+        "measured": {
+          "width": 150,
+          "height": 66
+        },
+        "nodeType": "default",
+        "formDataValid": true
+      }
+    },
+    {
+      "id": "agent_deepagent_1",
+      "provider": "agent_deepagent",
+      "config": {
+        "default": {
+          "advanced_mode": false,
+          "instructions": [
+            "You are Meridian's release-rollup coordination agent for the BarkPark project.",
+            "Each incoming question is a JSON object. It always contains a `run_id` (ISO timestamp) and may contain scope-change context, prior commitments, and detected contradictions from XTrace. Read it carefully and echo `run_id` verbatim in your output.",
+            "Fetch the current project state from the Butterbase REST API using the HTTP Request tool. The API base URL is ${ROCKETRIDE_BUTTERBASE_API_BASE} and every request MUST include the header `Authorization: Bearer ${ROCKETRIDE_BUTTERBASE_API_KEY}` and `Accept: application/json`.",
+            "Issue these GET requests (one per table): GET ${ROCKETRIDE_BUTTERBASE_API_BASE}/issues, GET ${ROCKETRIDE_BUTTERBASE_API_BASE}/dependencies, GET ${ROCKETRIDE_BUTTERBASE_API_BASE}/teams, GET ${ROCKETRIDE_BUTTERBASE_API_BASE}/phases, GET ${ROCKETRIDE_BUTTERBASE_API_BASE}/users.",
+            "Table shapes: teams(id,name,lead); phases(id,name,order,status); issues(id,team_id,phase_id,title,status,owner,committed_date,actual_date); dependencies(id,from_issue_id,to_issue_id,type); users(id,team_id,role,slack_id) where role is one of dev/manager/director/designer.",
+            "Analysis: For each phase compute completion as count(status==done) over total issues in that phase. Mark a phase `at_risk` if any incomplete issue in it is blocked, or if any commitment/contradiction in the incoming question implicates one of its issues. Walk the `dependencies` edges (from_issue_id blocks to_issue_id) to find blocked issues: a to-side issue is blocked when its from-side cause is incomplete, newly added by a scope change, or flagged in the incoming context. For each blocker, identify the blocked team (via the blocked issue's team_id -> teams.name) and a new_eta if one is supplied in the incoming context.",
+            "Delegate per-team detail analysis to the team-analysis sub-agent when you need a focused per-team blocker breakdown; otherwise analyze directly.",
+            "Briefings: produce exactly one briefing per role found in the users table among dev/manager/director (skip designer unless it has a distinct blocker). Use that user's slack_id. Role-tailor the text: dev = exactly what blocks YOU and the revised ETA; manager = phase completion summary plus each blocker; director = overall risk plus a concrete suggested mitigation.",
+            "Output contract: emit ONLY a single raw JSON object and nothing else — no prose, no explanation, no markdown code fences. The object MUST have keys: run_id (string, echoed from input), phase_status (array of {phase, complete, total, at_risk}), blockers (array of {issue_id, blocked_team, cause_issue_id, cause, new_eta}), briefings (array of {role, slack_id, text}). If a field is unknown use null. Do not wrap the JSON in any other text."
+          ]
+        }
+      },
+      "input": [
+        {
+          "lane": "questions",
+          "from": "chat_1"
+        }
+      ],
+      "ui": {
+        "position": {
+          "x": 240,
+          "y": 200
+        },
+        "measured": {
+          "width": 150,
+          "height": 86
+        },
+        "nodeType": "default",
+        "formDataValid": true
+      }
+    },
+    {
+      "id": "agent_deepagent_subagent_1",
+      "provider": "agent_deepagent_subagent",
+      "config": {
+        "default": {
+          "description": "Per-team analysis specialist. Delegate to this sub-agent to break down blocked issues, dependency impacts, and phase risk for a single team (Design, Backend, or Frontend) given the issues and dependencies already fetched from Butterbase.",
+          "advanced_mode": false,
+          "instructions": [
+            "You analyze release status for ONE team at a time within the BarkPark project.",
+            "Given the team name and the already-fetched issues/dependencies/users data, return: that team's incomplete issues, which of them are blocked and by which upstream cause issue, the responsible owner's slack_id, and a one-line, role-appropriate impact summary the coordinator can fold into the final briefing.",
+            "If you need fresh data, use the HTTP Request tool against ${ROCKETRIDE_BUTTERBASE_API_BASE} with header `Authorization: Bearer ${ROCKETRIDE_BUTTERBASE_API_KEY}`. Return structured findings only; the coordinator assembles the final contract JSON."
+          ]
+        }
+      },
+      "control": [
+        {
+          "classType": "deepagent",
+          "from": "agent_deepagent_1"
+        }
+      ],
+      "ui": {
+        "position": {
+          "x": 240,
+          "y": 380
+        },
+        "measured": {
+          "width": 150,
+          "height": 86
         },
         "nodeType": "default",
         "formDataValid": true
@@ -23,158 +96,112 @@
     {
       "id": "llm_nebius_1",
       "provider": "llm_nebius",
-      "name": "Nebius",
       "config": {
         "profile": "llama-3-3-70b",
-        "llama-3-3-70b": {},
-        "name": "Nebius"
-      },
-      "ui": {
-        "position": {
-          "x": 900,
-          "y": 560
+        "llama-3-3-70b": {
+          "apikey": "${ROCKETRIDE_NEBIUS_API_KEY}"
         },
-        "nodeType": "default",
-        "formDataValid": false
+        "parameters": {}
       },
       "control": [
         {
           "classType": "llm",
           "from": "agent_deepagent_1"
-        }
-      ]
-    },
-    {
-      "id": "agent_deepagent_1",
-      "provider": "agent_deepagent",
-      "name": "Deep Agent",
-      "config": {
-        "default": {
-          "advanced_mode": false
         },
-        "name": "Deep Agent"
-      },
+        {
+          "classType": "llm",
+          "from": "agent_deepagent_subagent_1"
+        }
+      ],
       "ui": {
         "position": {
-          "x": 900,
-          "y": 380
+          "x": 130,
+          "y": 560
+        },
+        "measured": {
+          "width": 150,
+          "height": 66
         },
         "nodeType": "default",
         "formDataValid": true
       }
     },
     {
-      "id": "tool_git_1",
-      "provider": "tool_git",
-      "name": "Git",
+      "id": "tool_http_request_1",
+      "provider": "tool_http_request",
       "config": {
-        "authType": "none",
-        "readOnlyMode": true,
-        "repoPath": "",
-        "safeMode": true,
-        "sshKey": "",
-        "sshPassphrase": "",
-        "token": "",
-        "type": "tool_git",
-        "username": "",
-        "name": "Git"
-      },
-      "ui": {
-        "position": {
-          "x": 1070,
-          "y": 570
-        },
-        "nodeType": "default",
-        "formDataValid": false
+        "type": "tool_http_request",
+        "allowGET": true,
+        "allowPOST": false,
+        "allowPUT": false,
+        "allowPATCH": false,
+        "allowDELETE": false,
+        "allowHEAD": false,
+        "allowOPTIONS": false,
+        "urlWhitelist": [
+          {
+            "whitelistPattern": "^${ROCKETRIDE_BUTTERBASE_API_BASE}/.*"
+          }
+        ],
+        "rateLimitPerSecond": 10,
+        "rateLimitPerMinute": 100,
+        "maxConcurrentRequests": 5
       },
       "control": [
         {
           "classType": "tool",
           "from": "agent_deepagent_1"
-        }
-      ]
-    },
-    {
-      "id": "agent_deepagent_subagent_1",
-      "provider": "agent_deepagent_subagent",
-      "name": "Deep Agent Subagent",
-      "config": {
-        "default": {
-          "advanced_mode": false,
-          "description": ""
         },
-        "name": "Deep Agent Subagent"
-      },
-      "ui": {
-        "position": {
-          "x": 1225,
-          "y": 518
-        },
-        "nodeType": "default",
-        "formDataValid": true
-      },
-      "control": [
         {
-          "classType": "deepagent",
-          "from": "agent_deepagent_1"
+          "classType": "tool",
+          "from": "agent_deepagent_subagent_1"
         }
-      ]
-    },
-    {
-      "id": "agent_crewai_manager_1",
-      "provider": "agent_crewai_manager",
-      "name": "CrewAI Manager",
-      "config": {
-        "default": {
-          "advanced_mode": false,
-          "agent_description": "",
-          "instructions": []
-        },
-        "name": "CrewAI Manager"
-      },
+      ],
       "ui": {
         "position": {
-          "x": 1110,
-          "y": 340
+          "x": 350,
+          "y": 560
+        },
+        "measured": {
+          "width": 150,
+          "height": 40
         },
         "nodeType": "default",
         "formDataValid": true
       }
     },
     {
-      "id": "agent_crewai_subagent_1",
-      "provider": "agent_crewai_subagent",
-      "name": "CrewAI Subagent",
+      "id": "response_answers_1",
+      "provider": "response_answers",
       "config": {
-        "default": {
-          "advanced_mode": false,
-          "instructions": []
-        },
-        "name": "CrewAI Subagent"
+        "laneName": "answers"
       },
+      "input": [
+        {
+          "lane": "answers",
+          "from": "agent_deepagent_1"
+        }
+      ],
       "ui": {
         "position": {
-          "x": 1385,
-          "y": 468
+          "x": 460,
+          "y": 200
+        },
+        "measured": {
+          "width": 150,
+          "height": 66
         },
         "nodeType": "default",
         "formDataValid": true
-      },
-      "control": [
-        {
-          "classType": "crewai",
-          "from": "agent_crewai_manager_1"
-        }
-      ]
+      }
     }
   ],
+  "source": "chat_1",
   "project_id": "cc4eee6a-5ce3-4224-a0f3-38024f716798",
-  "isLocked": false,
-  "snapToGrid": true,
-  "snapGridSize": [
-    10,
-    10
-  ],
-  "version": 1,
-  "docRevision": 9
+  "viewport": {
+    "x": 0,
+    "y": 0,
+    "zoom": 1
+  },
+  "version": 1
 }
