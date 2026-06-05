@@ -1,0 +1,180 @@
+{
+  "components": [
+    {
+      "id": "chat_1",
+      "provider": "chat",
+      "name": "Chat",
+      "config": {
+        "hideForm": true,
+        "mode": "Source",
+        "parameters": {},
+        "type": "chat",
+        "name": "Chat"
+      },
+      "ui": {
+        "position": {
+          "x": 700,
+          "y": 500
+        },
+        "nodeType": "default",
+        "formDataValid": true
+      }
+    },
+    {
+      "id": "llm_nebius_1",
+      "provider": "llm_nebius",
+      "name": "Nebius",
+      "config": {
+        "profile": "llama-3-3-70b",
+        "llama-3-3-70b": {},
+        "name": "Nebius"
+      },
+      "ui": {
+        "position": {
+          "x": 900,
+          "y": 560
+        },
+        "nodeType": "default",
+        "formDataValid": false
+      },
+      "control": [
+        {
+          "classType": "llm",
+          "from": "agent_deepagent_1"
+        }
+      ]
+    },
+    {
+      "id": "agent_deepagent_1",
+      "provider": "agent_deepagent",
+      "name": "Deep Agent",
+      "config": {
+        "default": {
+          "advanced_mode": false
+        },
+        "name": "Deep Agent"
+      },
+      "ui": {
+        "position": {
+          "x": 900,
+          "y": 380
+        },
+        "nodeType": "default",
+        "formDataValid": true
+      }
+    },
+    {
+      "id": "tool_git_1",
+      "provider": "tool_git",
+      "name": "Git",
+      "config": {
+        "authType": "none",
+        "readOnlyMode": true,
+        "repoPath": "",
+        "safeMode": true,
+        "sshKey": "",
+        "sshPassphrase": "",
+        "token": "",
+        "type": "tool_git",
+        "username": "",
+        "name": "Git"
+      },
+      "ui": {
+        "position": {
+          "x": 1070,
+          "y": 570
+        },
+        "nodeType": "default",
+        "formDataValid": false
+      },
+      "control": [
+        {
+          "classType": "tool",
+          "from": "agent_deepagent_1"
+        }
+      ]
+    },
+    {
+      "id": "agent_deepagent_subagent_1",
+      "provider": "agent_deepagent_subagent",
+      "name": "Deep Agent Subagent",
+      "config": {
+        "default": {
+          "advanced_mode": false,
+          "description": ""
+        },
+        "name": "Deep Agent Subagent"
+      },
+      "ui": {
+        "position": {
+          "x": 1225,
+          "y": 518
+        },
+        "nodeType": "default",
+        "formDataValid": true
+      },
+      "control": [
+        {
+          "classType": "deepagent",
+          "from": "agent_deepagent_1"
+        }
+      ]
+    },
+    {
+      "id": "agent_crewai_manager_1",
+      "provider": "agent_crewai_manager",
+      "name": "CrewAI Manager",
+      "config": {
+        "default": {
+          "advanced_mode": false,
+          "agent_description": "",
+          "instructions": []
+        },
+        "name": "CrewAI Manager"
+      },
+      "ui": {
+        "position": {
+          "x": 1110,
+          "y": 340
+        },
+        "nodeType": "default",
+        "formDataValid": true
+      }
+    },
+    {
+      "id": "agent_crewai_subagent_1",
+      "provider": "agent_crewai_subagent",
+      "name": "CrewAI Subagent",
+      "config": {
+        "default": {
+          "advanced_mode": false,
+          "instructions": []
+        },
+        "name": "CrewAI Subagent"
+      },
+      "ui": {
+        "position": {
+          "x": 1385,
+          "y": 468
+        },
+        "nodeType": "default",
+        "formDataValid": true
+      },
+      "control": [
+        {
+          "classType": "crewai",
+          "from": "agent_crewai_manager_1"
+        }
+      ]
+    }
+  ],
+  "project_id": "cc4eee6a-5ce3-4224-a0f3-38024f716798",
+  "isLocked": false,
+  "snapToGrid": true,
+  "snapGridSize": [
+    10,
+    10
+  ],
+  "version": 1,
+  "docRevision": 9
+}

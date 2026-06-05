@@ -1,0 +1,12 @@
+{
+  "name": "meridian",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "node --env-file=.env index.ts"
+  },
+  "dependencies": {
+    "@xtraceai/memory": "^0.2.1",
+    "spectrum-ts": "^1.18.0"
+  }
+}

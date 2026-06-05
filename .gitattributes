@@ -1,0 +1,30 @@
+# Normalize line endings: LF in the repo, auto-detect text files
+* text=auto eol=lf
+
+# Source and config
+*.ts text
+*.tsx text
+*.py text
+*.json text
+*.pipe text
+*.md text
+*.yml text
+*.yaml text
+*.toml text
+
+# Shell scripts must stay LF
+*.sh text eol=lf
+
+# Lockfiles: keep, but collapse in diffs/PR views
+package-lock.json linguist-generated=true -diff
+
+# Binary
+*.pdf binary
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.zip binary
+*.sqlite binary
+*.db binary
