@@ -62,9 +62,21 @@ const app = await Spectrum({
 console.log("Meridian ready. Try: seed-memory → rollup → scope-change → push issue #15 to phase 3");
 
 for await (const [space, message] of app.messages) {
+  const c = (message as any).content;
+  const text =
+    (message as any).text ??
+    (Array.isArray(c)
+      ? c.filter((p: any) => p.type === "text").map((p: any) => p.text).join(" ")
+      : c?.text ?? "");
+  if (text.trim().toLowerCase() === "quit" || text.trim().toLowerCase() === "exit") {
+    await message.reply("Bye.");
+    await app.stop();
+    shutdown();
+    process.exit(0);
+  }
   await space.responding(async () => {
     try {
-      await handle(message.text ?? "", (t) => message.reply(t));
+      await handle(text, (t) => message.reply(t));
     } catch (err) {
       await message.reply(`error: ${String(err).slice(0, 200)}`);
     }
