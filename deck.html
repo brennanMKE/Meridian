@@ -1,0 +1,119 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Meridian — BarkPark Demo Deck</title>
+<style>
+  * { box-sizing: border-box; }
+  body { font-family: -apple-system, "Segoe UI", Roboto, sans-serif; background: #122b1d; color: #eaf3ec; margin: 0; overflow: hidden; }
+  .slide { display: none; position: absolute; inset: 0; padding: 7vh 8vw; flex-direction: column; justify-content: center; }
+  .slide.active { display: flex; }
+  .green { color: #6fdc6f; } .muted { color: #9fc5a8; } .dim { color: #6e9479; }
+  h1 { font-size: 5.2vw; margin: 0 0 2vh; font-weight: 800; letter-spacing: -1px; line-height: 1.08; }
+  h2 { font-size: 3.4vw; margin: 0 0 4vh; font-weight: 800; }
+  p.big { font-size: 2.1vw; line-height: 1.45; margin: 1vh 0; }
+  .counter { position: fixed; bottom: 18px; right: 24px; color: #6e9479; font-size: 14px; }
+  .hint { position: fixed; bottom: 18px; left: 24px; color: #41614c; font-size: 13px; }
+  .art { border-radius: 16px; box-shadow: 0 10px 40px rgba(0,0,0,.5); }
+  .row { display: flex; gap: 4vw; align-items: center; }
+  .cols { display: grid; grid-template-columns: 1fr 1fr; gap: 3vw 4vw; }
+  .tool { background: #1b3a28; border: 1px solid #2c4a36; border-radius: 14px; padding: 2.2vh 1.6vw; }
+  .tool h3 { margin: 0 0 .8vh; font-size: 1.7vw; color: #6fdc6f; }
+  .tool p { margin: 0; font-size: 1.35vw; line-height: 1.4; color: #cfe3d4; }
+  .tool .real { margin-top: 1vh; font-size: 1.05vw; color: #9fc5a8; }
+  .person { font-size: 1.7vw; margin: 1.2vh 0; }
+  .person b { color: #6fdc6f; }
+  .arrowflow { font-size: 1.9vw; color: #cfe3d4; line-height: 2; }
+  .kbd { background: #1b3a28; border: 1px solid #2c4a36; border-radius: 6px; padding: .2vh .7vw; font-family: ui-monospace, monospace; color: #6fdc6f; font-size: 1.5vw; }
+  .footer-tag { position: fixed; bottom: 18px; left: 50%; transform: translateX(-50%); color: #41614c; font-size: 13px; }
+</style>
+</head>
+<body>
+
+<!-- 1 · Title -->
+<section class="slide active">
+  <div class="row">
+    <img class="art" src="sample-project/BarkPark.png" style="height: 62vh;">
+    <div>
+      <h1>Meridian</h1>
+      <p class="big muted">Multi-team project intelligence that <span class="green">remembers what was promised.</span></p>
+      <p class="big" style="margin-top:4vh">Jira shows current state.<br>Meridian remembers commitments —<br>and tells each team when one breaks.</p>
+      <p class="big dim" style="font-size:1.4vw; margin-top:5vh">Demo project: BarkPark — a dog park app built by 3 teams, mid-release.</p>
+    </div>
+  </div>
+</section>
+
+<!-- 2 · The scenario -->
+<section class="slide">
+  <h2>The scenario <span class="dim" style="font-weight:400">· June 5, midway through Phase 2</span></h2>
+  <div class="cols" style="grid-template-columns: 1.1fr 1fr;">
+    <div>
+      <p class="person"><b>Dana</b> — director. Wants the release funded and on time.</p>
+      <p class="person"><b>Marisol</b> — design manager. Drives the feature set.</p>
+      <p class="person"><b>Kai</b> — designer. Owns every screen.</p>
+      <p class="person"><b>Priya</b> — backend (Go). Promised: <i>"map API final at current scope by June 19."</i></p>
+      <p class="person"><b>Tom</b> — frontend (Svelte). Downstream of everyone.</p>
+    </div>
+    <div class="tool" style="align-self:center">
+      <h3>The mid-cycle requirement</h3>
+      <p>To fund the app, Design — guided by the director — adds <b>paid veterinarian placements</b> to the map. Four new issues land in the middle of Phase&nbsp;2.</p>
+      <p class="real">The question Jira can't answer: <i>whose promises did that just break?</i></p>
+    </div>
+  </div>
+</section>
+
+<!-- 3 · The stack -->
+<section class="slide">
+  <h2>Four tools, one loop</h2>
+  <div class="cols">
+    <div class="tool"><h3>Butterbase</h3><p>System of record — teams, phases, issues, dependency graph.</p><p class="real">Live cloud DB, provisioned &amp; seeded via MCP today.</p></div>
+    <div class="tool"><h3>XTrace</h3><p>Institutional memory — scoped commitments; new facts reconciled against old promises.</p><p class="real">Live — the scope-change contradiction is recalled from memory in the demo.</p></div>
+    <div class="tool"><h3>RocketRide</h3><p>Analysis pipeline — multi-agent rollup over the dependency graph.</p><p class="real">Pipeline defined; deterministic fallback engine runs the demo.</p></div>
+    <div class="tool"><h3>Photon</h3><p>Messaging — channel briefings out, plain-language replies in.</p><p class="real">Spectrum SDK live; Slack gated by vendor — terminal provider stands in.</p></div>
+  </div>
+  <p class="arrowflow" style="margin-top:4vh; text-align:center">issue data → <span class="green">memory check</span> → rollup → <span class="green">#design · #backend · #frontend · #management</span> → reply updates the plan</p>
+</section>
+
+<!-- 4 · Demo cue -->
+<section class="slide">
+  <h2>Live demo</h2>
+  <p class="arrowflow">
+    1 · <span class="kbd">board.html</span> — the release, before <span class="dim">(browser tab)</span><br>
+    2 · <span class="kbd">team</span> → <span class="kbd">scope-change</span> — the requirement lands; every channel learns what it means for them <span class="dim">(terminal)</span><br>
+    3 · <span class="kbd">npm run board</span> + refresh — teal cards: the scope change, visible <span class="dim">(browser)</span><br>
+    4 · <span class="kbd">push issue #15 to phase 3</span> — a manager fixes it by replying in chat <span class="dim">(terminal)</span><br>
+    5 · <span class="kbd">exit</span>
+  </p>
+</section>
+
+<!-- 5 · Close -->
+<section class="slide">
+  <h2>What Meridian knows that a tracker doesn't</h2>
+  <p class="big">🧠 What each team <span class="green">promised</span> — with scope, as facts in memory</p>
+  <p class="big">⚡ When a new requirement <span class="green">contradicts</span> a promise — automatically</p>
+  <p class="big">🧭 Who downstream is affected — via the <span class="green">dependency graph</span></p>
+  <p class="big">💬 And it tells each audience in <span class="green">their channel</span> — fix applied by reply, no dashboard</p>
+  <p class="big dim" style="margin-top:5vh; font-size:1.4vw">github.com/brennanMKE/Meridian · built at the Agentic AI Hackathon, SF · June 5, 2026</p>
+</section>
+
+<div class="counter"><span id="cur">1</span> / <span id="total"></span></div>
+<div class="hint">← → arrows · click to advance</div>
+
+<script>
+  const slides = [...document.querySelectorAll(".slide")];
+  let i = 0;
+  document.getElementById("total").textContent = slides.length;
+  function show(n) {
+    i = Math.max(0, Math.min(slides.length - 1, n));
+    slides.forEach((s, j) => s.classList.toggle("active", j === i));
+    document.getElementById("cur").textContent = i + 1;
+  }
+  addEventListener("keydown", (e) => {
+    if (e.key === "ArrowRight" || e.key === " " || e.key === "PageDown") show(i + 1);
+    if (e.key === "ArrowLeft" || e.key === "PageUp") show(i - 1);
+    if (e.key === "Home") show(0);
+  });
+  addEventListener("click", () => show(i + 1));
+</script>
+</body>
+</html>
