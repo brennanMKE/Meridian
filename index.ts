@@ -17,7 +17,7 @@ async function doRollup(reply: (t: string) => Promise<void>) {
   const result = await runRollup(context, runId);
   await reply(`— Meridian rollup ${runId} (engine: ${result.engine}) —`);
   for (const b of result.briefings) {
-    await reply(`[→ ${b.role}${b.name ? ` ${b.name}` : ""} @ ${b.slack_id}]\n${b.text}`);
+    await reply(`[→ ${b.channel} (${b.audience})]\n${b.text}`);
   }
 }
 

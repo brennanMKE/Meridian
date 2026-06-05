@@ -2,7 +2,7 @@
 // The demo cannot die on a flaky LLM or a down server.
 import { selectRows } from "./butterbase.ts";
 
-export interface Briefing { role: string; slack_id: string; name?: string; text: string }
+export interface Briefing { channel: string; audience: string; text: string }
 export interface RollupResult {
   run_id: string;
   phase_status: { phase: string; complete: number; total: number; at_risk: boolean }[];
@@ -75,24 +75,40 @@ async function runLocalFallback(memoryContext: string[], runId: string): Promise
     }));
 
   const scopeNote = memoryContext.filter((m) => /scope/i.test(m)).slice(0, 1);
-  const briefings: Briefing[] = users
-    .filter((u: any) => ["dev", "manager", "director"].includes(u.role))
-    .map((u: any) => {
-      const mine = blockers.filter((b: any) => teamName(byId.get(b.issue_id)?.team_id) === teamName(u.team_id));
-      if (u.role === "dev") {
-        const text = mine.length
-          ? mine.map((b: any) => `🚧 ${u.name}: "${byId.get(b.issue_id)?.title}" (#${b.issue_id}) is blocked by #${b.cause_issue_id} "${byId.get(b.cause_issue_id)?.title}"${b.cause === "scope_change" ? " — added by a mid-phase scope change" : ""}. New upstream ETA: ${b.new_eta ?? "TBD"}.`).join("\n")
-          : `✅ ${u.name}: no blockers on your issues today.`;
-        return { role: u.role, slack_id: u.slack_id, name: u.name, text };
+  const atRisk = phase_status.filter((p) => p.at_risk);
+
+  // One briefing per team channel, crafted for that team's audience.
+  const briefings: Briefing[] = teams.map((t: any) => {
+    const channel = `#${t.name.toLowerCase()}`;
+    const teamIssues = issues.filter((i: any) => i.team_id === t.id && i.status !== "done");
+    const teamBlockers = blockers.filter((b: any) => byId.get(b.issue_id)?.team_id === t.id);
+    const blocking = blockers.filter((b: any) => byId.get(b.cause_issue_id)?.team_id === t.id);
+    const lines: string[] = [];
+    if (teamBlockers.length) {
+      for (const b of teamBlockers) {
+        const owner = byId.get(b.issue_id)?.owner;
+        lines.push(`🚧 "${byId.get(b.issue_id)?.title}" (#${b.issue_id}${owner ? `, ${owner}` : ""}) is blocked by #${b.cause_issue_id} "${byId.get(b.cause_issue_id)?.title}"${b.cause === "scope_change" ? " — added by a mid-phase scope change" : ""}. Upstream ETA: ${String(b.new_eta ?? "TBD").slice(0, 10)}.`);
       }
-      const atRisk = phase_status.filter((p) => p.at_risk);
-      if (u.role === "manager") {
-        const text = `📋 ${u.name}: ${phase_status.map((p) => `${p.phase}: ${p.complete}/${p.total}${p.at_risk ? " ⚠️" : ""}`).join(" · ")}. ${blockers.length} blocker(s).${scopeNote.length ? ` Scope change in play: ${scopeNote[0]}` : ""}`;
-        return { role: u.role, slack_id: u.slack_id, name: u.name, text };
-      }
-      const text = `🎯 ${u.name} (director): ${atRisk.length ? `${atRisk.map((p) => p.phase).join(", ")} at risk — ${new Set(blockers.map((b: any) => b.blocked_team)).size} team(s) affected by ${blockers.length} blocker(s).` : "All phases on track."}${scopeNote.length ? ` Cause: mid-phase scope addition. Suggested mitigation: defer "Map filters" (#15) to Phase 3 to absorb the vet placement work.` : ""}`;
-      return { role: u.role, slack_id: u.slack_id, name: u.name, text };
-    });
+    } else {
+      lines.push(`✅ No blocked work in ${t.name} today.`);
+    }
+    if (blocking.length) {
+      lines.push(`⏳ Other teams are waiting on you: ${[...new Set(blocking.map((b: any) => `#${b.cause_issue_id} "${byId.get(b.cause_issue_id)?.title}"`))].join("; ")}.`);
+    }
+    if (teamIssues.length) {
+      lines.push(`📌 Open in your lane: ${teamIssues.map((i: any) => `#${i.id}`).join(", ")}.`);
+    }
+    return { channel, audience: `${t.name} team`, text: lines.join("\n") };
+  });
+
+  // Leadership channel: phase health, risk, and the suggested move.
+  const mgmtLines = [
+    `📋 ${phase_status.map((p) => `${p.phase}: ${p.complete}/${p.total}${p.at_risk ? " ⚠️" : ""}`).join(" · ")} — ${blockers.length} blocker(s) across ${new Set(blockers.map((b: any) => b.blocked_team)).size || 0} team(s).`,
+  ];
+  if (atRisk.length) mgmtLines.push(`🎯 At risk: ${atRisk.map((p) => p.phase).join(", ")}.`);
+  if (scopeNote.length) mgmtLines.push(`🧠 Memory: ${scopeNote[0]}`);
+  if (scopeNote.length) mgmtLines.push(`💡 Suggested mitigation: defer "Map filters" (#15) to Phase 3 to absorb the vet placement work. Reply "push issue #15 to phase 3" to apply.`);
+  briefings.push({ channel: "#management", audience: "directors & managers", text: mgmtLines.join("\n") });
 
   return { run_id: runId, phase_status, blockers, briefings, engine: "local-fallback" };
 }
