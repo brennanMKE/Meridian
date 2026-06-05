@@ -1,0 +1,52 @@
+{
+  "teams": [
+    { "id": 1, "name": "Design", "lead": "Marisol" },
+    { "id": 2, "name": "Backend", "lead": "Priya" },
+    { "id": 3, "name": "Frontend", "lead": "Tom" }
+  ],
+  "phases": [
+    { "id": 1, "name": "Phase 1 — Foundation", "order": 1, "status": "complete" },
+    { "id": 2, "name": "Phase 2 — Core Workflows", "order": 2, "status": "in_progress" },
+    { "id": 3, "name": "Phase 3 — Polish & Launch", "order": 3, "status": "planned" }
+  ],
+  "users": [
+    { "id": 1, "team_id": null, "name": "Dana", "role": "director", "slack_id": "U_REPLACE_DANA" },
+    { "id": 2, "team_id": 1, "name": "Marisol", "role": "manager", "slack_id": "U_REPLACE_MARISOL" },
+    { "id": 3, "team_id": 1, "name": "Kai", "role": "designer", "slack_id": "U_REPLACE_KAI" },
+    { "id": 4, "team_id": 2, "name": "Priya", "role": "dev", "slack_id": "U_REPLACE_PRIYA" },
+    { "id": 5, "team_id": 3, "name": "Tom", "role": "dev", "slack_id": "U_REPLACE_TOM" }
+  ],
+  "issues": [
+    { "id": 1, "team_id": 1, "phase_id": 1, "title": "Design system & component library", "status": "done", "owner": "Kai", "committed_date": "2026-05-15", "actual_date": "2026-05-14" },
+    { "id": 2, "team_id": 1, "phase_id": 1, "title": "User workflow map: registration & check-in journeys", "status": "done", "owner": "Marisol", "committed_date": "2026-05-20", "actual_date": "2026-05-20" },
+    { "id": 3, "team_id": 2, "phase_id": 1, "title": "Postgres schema: users, dogs, parks (PostGIS geo index)", "status": "done", "owner": "Priya", "committed_date": "2026-05-18", "actual_date": "2026-05-19" },
+    { "id": 4, "team_id": 2, "phase_id": 1, "title": "Auth API (email + OAuth)", "status": "done", "owner": "Priya", "committed_date": "2026-05-25", "actual_date": "2026-05-26" },
+    { "id": 5, "team_id": 2, "phase_id": 1, "title": "Dog park database import + geo search index", "status": "done", "owner": "Priya", "committed_date": "2026-05-27", "actual_date": "2026-05-27" },
+    { "id": 6, "team_id": 3, "phase_id": 1, "title": "Svelte app scaffold, routing, auth screens", "status": "done", "owner": "Tom", "committed_date": "2026-05-22", "actual_date": "2026-05-22" },
+    { "id": 7, "team_id": 3, "phase_id": 1, "title": "Base map view with park markers", "status": "done", "owner": "Tom", "committed_date": "2026-05-29", "actual_date": "2026-05-28" },
+    { "id": 8, "team_id": 1, "phase_id": 2, "title": "Dog registration flow screens", "status": "done", "owner": "Kai", "committed_date": "2026-06-03", "actual_date": "2026-06-03" },
+    { "id": 9, "team_id": 1, "phase_id": 2, "title": "Park detail & check-in screens", "status": "in_progress", "owner": "Kai", "committed_date": "2026-06-08", "actual_date": null },
+    { "id": 10, "team_id": 2, "phase_id": 2, "title": "Dog registration API", "status": "done", "owner": "Priya", "committed_date": "2026-06-04", "actual_date": "2026-06-04" },
+    { "id": 11, "team_id": 2, "phase_id": 2, "title": "Park detail & amenities API", "status": "in_progress", "owner": "Priya", "committed_date": "2026-06-10", "actual_date": null },
+    { "id": 12, "team_id": 2, "phase_id": 2, "title": "Map data API — park search by user location", "status": "in_progress", "owner": "Priya", "committed_date": "2026-06-12", "actual_date": null },
+    { "id": 13, "team_id": 3, "phase_id": 2, "title": "Dog registration UI", "status": "in_progress", "owner": "Tom", "committed_date": "2026-06-10", "actual_date": null },
+    { "id": 14, "team_id": 3, "phase_id": 2, "title": "Park detail page + check-in UI", "status": "planned", "owner": "Tom", "committed_date": "2026-06-16", "actual_date": null },
+    { "id": 15, "team_id": 3, "phase_id": 2, "title": "Map filters (amenities, distance, off-leash hours)", "status": "planned", "owner": "Tom", "committed_date": "2026-06-19", "actual_date": null },
+    { "id": 16, "team_id": 1, "phase_id": 3, "title": "Visual QA & accessibility pass", "status": "planned", "owner": "Kai", "committed_date": "2026-06-29", "actual_date": null },
+    { "id": 17, "team_id": 2, "phase_id": 3, "title": "Park activity notifications", "status": "planned", "owner": "Priya", "committed_date": "2026-07-01", "actual_date": null },
+    { "id": 18, "team_id": 3, "phase_id": 3, "title": "User + dog profile pages", "status": "planned", "owner": "Tom", "committed_date": "2026-07-01", "actual_date": null },
+    { "id": 19, "team_id": 3, "phase_id": 3, "title": "Onboarding polish & launch checklist", "status": "planned", "owner": "Tom", "committed_date": "2026-07-03", "actual_date": null }
+  ],
+  "dependencies": [
+    { "id": 1, "from_issue_id": 8, "to_issue_id": 13, "type": "blocks" },
+    { "id": 2, "from_issue_id": 10, "to_issue_id": 13, "type": "blocks" },
+    { "id": 3, "from_issue_id": 9, "to_issue_id": 14, "type": "blocks" },
+    { "id": 4, "from_issue_id": 11, "to_issue_id": 14, "type": "blocks" },
+    { "id": 5, "from_issue_id": 12, "to_issue_id": 15, "type": "blocks" }
+  ],
+  "xtrace_commitments": [
+    "Backend committed: Map data API (issue 12) final at current scope by end of Phase 2 (June 19).",
+    "Frontend committed: all Phase 2 map workflows (issues 14, 15) complete by June 19, assuming map data API scope freezes June 5.",
+    "Design committed: all Phase 2 screens delivered by June 8."
+  ]
+}

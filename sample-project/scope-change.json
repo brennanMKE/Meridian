@@ -1,0 +1,15 @@
+{
+  "comment": "The mid-cycle requirement — applied LIVE during the demo, never seeded. Vet sponsorship placement funds the app; requirement comes from Design per the director's guidance.",
+  "issues": [
+    { "id": 20, "team_id": 1, "phase_id": 2, "title": "Sponsored vet placement: map pin + detail card designs", "status": "planned", "owner": "Kai", "committed_date": "2026-06-09", "actual_date": null },
+    { "id": 21, "team_id": 2, "phase_id": 2, "title": "Vets table + sponsored placement API (extends map data API)", "status": "planned", "owner": "Priya", "committed_date": "2026-06-12", "actual_date": null },
+    { "id": 22, "team_id": 2, "phase_id": 3, "title": "Sponsorship ranking & billing hooks", "status": "planned", "owner": "Priya", "committed_date": "2026-06-26", "actual_date": null },
+    { "id": 23, "team_id": 3, "phase_id": 2, "title": "Vet pins + sponsored detail card on map", "status": "planned", "owner": "Tom", "committed_date": "2026-06-18", "actual_date": null }
+  ],
+  "dependencies": [
+    { "id": 6, "from_issue_id": 20, "to_issue_id": 23, "type": "blocks" },
+    { "id": 7, "from_issue_id": 21, "to_issue_id": 23, "type": "blocks" },
+    { "id": 8, "from_issue_id": 21, "to_issue_id": 22, "type": "blocks" }
+  ],
+  "xtrace_fact": "Scope change (June 5, from Design per director guidance): the map must now show veterinarians who pay for placement. Map data API (issue 12) scope extended after the June 5 freeze; new issues 20-23 added mid-Phase 2."
+}

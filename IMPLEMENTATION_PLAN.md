@@ -3,12 +3,21 @@
 Hackathon-day plan for two developers. North star: the four-beat demo moment.
 Everything not on the demo path gets cut first.
 
+## The Sample Project
+
+Meridian tracks **BarkPark** — a dog park app (register your dogs, map of nearby
+parks) built by three teams: Design (drives features + screens), Backend (Go),
+Frontend (Svelte). Mid-cycle, Design — guided by the director — adds a funding
+requirement: show veterinarians who pay for placement on the map.
+Full narrative + data: `sample-project/` (SAMPLE_PROJECT.md, seed-data.json,
+scope-change.json).
+
 ## The Demo Moment (build backwards from this)
 
-1. **Slip** — Team A's foundational API slips a week (we trigger this by updating an issue).
-2. **Reconcile** — XTrace flags every downstream dependency now at risk.
-3. **Notify** — Team B's dev gets a Slack DM: "Your auth integration is now blocked. New ETA: June 12." The director gets a digest: one phase at risk, two teams affected, one mitigation.
-4. **Reply** — A manager replies "push issue #14 to Phase 3" → agent updates Butterbase, re-runs the rollup.
+1. **New requirement** — midway through Phase 2 (teams on schedule), Design adds sponsored vet locations to the map (issues #20–23 + dependency edges, applied live from `scope-change.json`).
+2. **Reconcile** — XTrace detects the contradiction with stored commitments ("map data API final at current scope by June 19"; "frontend map workflows by June 19 assuming scope freezes June 5") and flags every downstream dependency now at risk.
+3. **Notify** — Tom (frontend dev) gets a Slack DM: "Scope change upstream: the map data API now includes sponsored vet locations. Map filters (#15) at risk — new backend ETA June 12." Dana (director) gets a digest: scope added mid-phase, Phase 2 at risk, two teams affected, one mitigation (defer map filters #15 to Phase 3).
+4. **Reply** — Marisol (manager) replies "push issue #15 to Phase 3" → agent updates Butterbase, re-runs the rollup; Phase 2 back on track.
 
 ## Architecture
 
@@ -36,12 +45,12 @@ TypeScript driver (src/)
 ```json
 {
   "run_id": "2026-06-05T18:00:00Z",
-  "phase_status": [{ "phase": "Phase 2", "complete": 3, "total": 7, "at_risk": true }],
-  "blockers": [{ "issue_id": 14, "blocked_team": "Team B", "cause_issue_id": 3, "new_eta": "2026-06-12" }],
+  "phase_status": [{ "phase": "Phase 2 — Core Workflows", "complete": 3, "total": 8, "at_risk": true }],
+  "blockers": [{ "issue_id": 15, "blocked_team": "Frontend", "cause_issue_id": 21, "cause": "scope_change", "new_eta": "2026-06-12" }],
   "briefings": [
-    { "role": "dev",      "slack_id": "U…", "text": "Your auth integration is now blocked…" },
-    { "role": "manager",  "slack_id": "U…", "text": "Phase 2: 3/7 complete, 1 blocker…" },
-    { "role": "director", "slack_id": "U…", "text": "One phase at risk, two teams affected. Mitigation: …" }
+    { "role": "dev",      "slack_id": "U…", "text": "Scope change upstream: map data API now includes sponsored vet locations…" },
+    { "role": "manager",  "slack_id": "U…", "text": "Phase 2: 3/8 complete, 1 blocker from scope change…" },
+    { "role": "director", "slack_id": "U…", "text": "Phase 2 at risk, two teams affected. Mitigation: defer map filters (#15) to Phase 3." }
   ]
 }
 ```
@@ -56,9 +65,12 @@ TypeScript driver (src/)
 | `dependencies` | id, from_issue_id, to_issue_id, type |
 | `users` | id, team_id, role (dev/manager/director), slack_id |
 
-Seed data: 3 teams (A=platform, B=frontend, C=design), 2 phases, ~8 issues,
-3 dependency edges (A's auth API → B's auth integration is the demo edge),
-4 users (1 director, 1 manager, 2 devs) with real Slack IDs from the Meridian workspace.
+Seed data lives in `sample-project/seed-data.json`: 3 teams (Design, Backend Go,
+Frontend Svelte), 3 phases, 19 issues, 5 dependency edges, 5 users (director,
+manager, designer, 2 devs) — replace the `U_REPLACE_*` placeholders with real
+Slack IDs from the Meridian workspace. The vet-placement issues (#20–23, in
+`sample-project/scope-change.json`) are NOT seeded — they get created live
+during the demo.
 
 ## Work Split
 
@@ -80,7 +92,7 @@ Dev A:
 - [ ] Fix `Meridian.pipe`: chat source → coordination agent (sub-agent per team) → `response_answers`; drop unused CrewAI/Git nodes; HTTP tool → Butterbase REST
 - [ ] Pipeline prompt: ingest issues + XTrace context (passed in the question), emit contract JSON only
 - [ ] `src/pipeline.ts`: RocketRideClient wrapper — `runRollup(xtraceContext) → BriefingResult`
-- [ ] `src/memory.ts` (XTrace via `@xtraceai/memory`): `writeCommitment()`, `writeSlip()`, `queryImpacts()`
+- [ ] `src/memory.ts` (XTrace via `@xtraceai/memory`): `writeCommitment()`, `writeScopeChange()`, `queryImpacts()` — seed the `xtrace_commitments` from seed-data.json verbatim; they state scope ("map data API at current scope", "assuming scope freezes June 5") so the vet addition is a genuine contradiction
 
 Dev B (mock the pipeline output until M2):
 - [ ] `src/butterbase.ts`: typed REST client — `getIssues()`, `updateIssue(id, patch)`
@@ -91,7 +103,7 @@ Dev B (mock the pipeline output until M2):
 ### M2 — Integration (1–2 hours, pair on one machine)
 
 - [ ] Replace Dev B's mock with `runRollup()`; one MacBook is "production" (only it runs the Slack loop)
-- [ ] Wire the full slip flow: update issue 3's `actual_date` → `writeSlip()` → `queryImpacts()` → rollup → Slack messages land
+- [ ] Wire the full scope-change flow: apply `scope-change.json` (issues #20–23 + edges) to Butterbase → `writeScopeChange()` → `queryImpacts()` flags the contradiction → rollup → Slack messages land
 - [ ] Wire reply flow end-to-end
 - [ ] Rehearse the four beats twice; capture screenshots as fallback
 
@@ -105,7 +117,7 @@ Dev B (mock the pipeline output until M2):
 
 - **RocketRide**: multi-agent pipeline (coordination + per-team sub-agents), not a single LLM call
 - **Butterbase**: system of record (5 tables) + REST from both pipeline and driver; AI gateway if feasible
-- **XTrace**: commitments written on seed, slip reconciliation drives the demo's key beat — this is the differentiator, give it real prompt/memory design
+- **XTrace**: scoped commitments written on seed; the mid-schedule requirement contradicts a stored commitment and XTrace's belief reconciliation drives the demo's key beat — this is the differentiator, give it real prompt/memory design
 - **Photon**: role-differentiated delivery AND inbound conversational state updates (both directions)
 
 ## Cut List (in order, if time runs short)
