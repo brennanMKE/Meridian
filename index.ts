@@ -4,7 +4,7 @@ import { readFileSync } from "node:fs";
 import { Spectrum } from "spectrum-ts";
 import { terminal } from "spectrum-ts/providers/terminal";
 import { runRollup } from "./src/pipeline.ts";
-import { insertRow, updateIssuePhase, shutdown } from "./src/butterbase.ts";
+import { insertRow, selectRows, updateIssuePhase, shutdown } from "./src/butterbase.ts";
 import { writeFact, queryImpacts } from "./src/memory.ts";
 
 const seed = JSON.parse(readFileSync("sample-project/seed-data.json", "utf8"));
@@ -27,6 +27,14 @@ async function handle(text: string, reply: (t: string) => Promise<void>) {
   if (cmd === "seed-memory") {
     for (const c of seed.xtrace_commitments) await writeFact(c, "barkpark_commitments");
     await reply(`🧠 ${seed.xtrace_commitments.length} scoped commitments written to XTrace.`);
+    return;
+  }
+
+  if (cmd === "team" || cmd === "who") {
+    const [users, teams] = await Promise.all([selectRows("users"), selectRows("teams")]);
+    const tname = (id: number | null) => teams.find((t: any) => t.id === id)?.name ?? "—";
+    const lines = users.map((u: any) => `• ${u.name} — ${u.role}${u.team_id ? `, ${tname(u.team_id)} team` : " (all teams)"}`);
+    await reply(`👥 BarkPark project team:\n${lines.join("\n")}`);
     return;
   }
 
